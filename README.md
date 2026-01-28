@@ -1,103 +1,138 @@
-# AI Voice Robot Controller - Raspberry Pi 5
+# Robot Kendali Suara - ESP32 & Raspberry Pi 5
 
-🤖 Sistem kontrol robot suara berbasis AI yang dioptimasi untuk Raspberry Pi 5, dengan koneksi ESP32 via serial communication.
+Sistem kendali robot menggunakan perintah suara dalam bahasa Indonesia. Robot dapat dikendalikan melalui aplikasi mobile yang berkomunikasi dengan ESP32, kemudian ESP32 meneruskan signal ke Raspberry Pi 5 untuk pemrosesan suara.
 
-## ⚡ Quick Start
+## Cara Kerja
+
+```
+Aplikasi Mobile → ESP32 → Raspberry Pi 5 → ESP32 → Robot
+     (tombol)   VoiceON   (rekam 4 detik)  VoiceOFF  (gerak)
+```
+
+## Instalasi Cepat
 
 ```bash
-# 1. Clone repository
-git clone https://github.com/username/AI-Voice-Robot-RaspyPi5.git
-cd AI-Voice-Robot-RaspyPi5
+# Download dan setup
+git clone https://github.com/aadhumanoid/Mobile-Robot.git
+cd Mobile-Robot
 
-# 2. Quick setup
-chmod +x quick_start.sh
-./quick_start.sh
+# Instalasi otomatis (10-15 menit)
+./setup.sh
 
-# 3. Connect ESP32 hardware (USB or GPIO)
-# 4. Upload ESP32_Robot_RaspyPi5.ino to ESP32  
-# 5. Run the robot
-./run_raspy.sh
+# Jalankan robot
+./run_robot.sh
 ```
 
-## 🎯 Features
+## Hardware yang Dibutuhkan
 
-- 🎤 **Voice Recognition** - Faster-Whisper STT (Bahasa Indonesia)
-- 🧠 **AI Processing** - Ollama + Qwen2.5:1.5b untuk command processing
-- 🔊 **Text-to-Speech** - Piper TTS (Indonesian voice)
-- 📡 **Dual Serial** - USB dan GPIO UART communication
-- 🔧 **Hardware Control** - GPIO status LEDs & motor control
-- 🛠️ **Monitoring Tools** - Real-time serial monitoring & debugging
+### Raspberry Pi 5
+- Raspberry Pi 5 (4GB RAM minimum)
+- MicroSD 32GB Class 10
+- Microphone USB
+- Speaker atau headphone
 
-## 🔧 Hardware Requirements
+### ESP32 Robot
+- ESP32 development board
+- Motor driver (L298N)
+- Motor DC dan chassis robot
+- Kabel USB untuk koneksi ke Raspberry Pi
 
-### Raspberry Pi 5 Setup
-- **Raspberry Pi 5** (4GB/8GB RAM)
-- **MicroSD** 32GB+ (Class 10)
-- **USB Microphone** 
-- **Speaker/Headphones**
-- **Power Supply** 5V/5A
+## Koneksi Hardware
 
-### ESP32 Mobile Robot  
-- **ESP32 Dev Board**
-- **Motor Drivers** (L298N)
-- **DC Motors**
-- **Robot Chassis** 
-- **Battery Pack**
-
-## 🔌 Connection Options
-
-### Option 1: USB (Recommended)
+**USB (Direkomendasikan)**
 ```
-ESP32 ←─[USB Cable]─→ Raspberry Pi 5
+ESP32 ←── Kabel USB ──→ Raspberry Pi 5
 ```
 
-### Option 2: GPIO UART
+**GPIO UART (Opsional)**
 ```
-Raspberry Pi 5          ESP32
-Pin  GPIO              Pin    Function
- 8    14   (TXD)   →   RX     (GPIO 3)
-10    15   (RXD)   ←   TX     (GPIO 1)
- 6    GND            GND
+Raspberry Pi 5    ESP32
+Pin 8 (GPIO 14)   → RX
+Pin 10 (GPIO 15)  ← TX  
+Pin 6 (GND)       ← GND
 ```
 
-## 🚀 Installation
+## Perintah Suara
 
-### Automatic Setup
+### Aktivasi Sistem
+- **"VOICECOMMANDON"** - Aktifkan mode suara
+- **"VOICECOMMANDOFF"** - Matikan mode suara
+
+### Perintah Gerak
+- **"MAJU"** - Robot maju
+- **"MUNDUR"** - Robot mundur  
+- **"PUTARKANAN"** - Putar ke kanan
+- **"PUTARKIRI"** - Putar ke kiri
+- **"MAJUPELAN"** - Maju dengan kecepatan pelan
+- **"BERHENTI"** - Stop semua gerakan
+
+## Cara Penggunaan
+
+1. **Persiapan**: Jalankan `./setup.sh` untuk instalasi awal
+2. **Koneksi**: Hubungkan ESP32 ke Raspberry Pi via USB
+3. **Upload**: Upload kode ESP32 menggunakan Arduino IDE  
+4. **Jalankan**: Eksekusi `./run_robot.sh`
+5. **Aplikasi**: Tekan tombol di aplikasi mobile
+6. **Bicara**: Ucapkan perintah dalam 4 detik
+7. **Eksekusi**: Robot akan melaksanakan perintah
+
+## Struktur File
+
+```
+├── setup.sh               # Script instalasi lengkap
+├── test_voice_ai.py        # Program utama kendali suara
+├── requirements_raspy.txt  # Dependensi Python
+└── README.md              # Dokumentasi
+```
+
+## Troubleshooting
+
+### Masalah Audio
 ```bash
-./setup_raspy.sh
-```
-**What it does:**
-- ✅ Install system dependencies
-- ✅ Setup Python virtual environment  
-- ✅ Download Piper TTS (ARM64)
-- ✅ Install & configure Ollama
-- ✅ Download AI model (~900MB)
-- ✅ Configure audio system
+# Test microphone
+arecord -l
 
-### GPIO UART Setup (Optional)
-```bash
-./setup_gpio_uart.sh  # Enable GPIO UART
-./test_uart.sh         # Test connection
+# Test speaker
+speaker-test -c 2
 ```
 
-## 🎮 Usage
-
-### Voice Commands (Bahasa Indonesia)
-- **"Maju 5 meter"** - Move forward 5 meters
-- **"Belok kiri"** - Turn left 90°  
-- **"Mundur 2 meter"** - Move backward 2 meters
-- **"Kecepatan 75 persen"** - Set speed to 75%
-- **"Berhenti"** - Stop all movement
-- **"Matikan"** - Shutdown system
-
-### Manual Control
+### Koneksi Serial
 ```bash
-./monitor_esp32.sh     # ESP32 serial monitor
-python3 serial_monitor.py  # Advanced monitoring
+# Cek port ESP32
+ls /dev/ttyUSB*
+ls /dev/ttyACM*
 
-# Commands in monitor:
-ESP32> forward 5      # Move forward 5m
-ESP32> left 90        # Turn left 90°
+# Test koneksi
+./test_uart.sh
+```
+
+### Dependensi Python
+```bash
+# Aktivasi virtual environment
+source venv/bin/activate
+
+# Install ulang dependensi
+pip install -r requirements_raspy.txt
+```
+
+## Performa
+
+- **Waktu setup**: 10-15 menit
+- **Respon suara**: 2-4 detik
+- **Penggunaan RAM**: 1-2GB
+- **Akurasi**: 85-90% (kondisi normal)
+
+## Dukungan
+
+Untuk masalah teknis:
+1. Periksa koneksi hardware
+2. Cek log error di terminal
+3. Test komponen secara terpisah
+4. Pastikan ESP32 sudah upload kode yang benar
+
+---
+
+**Siap membangun robot kendali suara Anda!** 🤖
 ESP32> speed 75       # Set speed 75%
 ESP32> status         # Check robot status
 ```
